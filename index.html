@@ -56,8 +56,9 @@ d3.json("europe-state-centroids.json", function(states) {
         x: xy[0],
         y: xy[1],
         gravity: {x: xy[0], y: xy[1]},
-        width: Math.random()*100+25,
-        height: Math.random()*100+25
+        width: 10,//Math.random()*100+25,
+        height: 10,//Math.random()*100+25,
+        name: d.properties.name
       };
     });
 
@@ -65,17 +66,14 @@ d3.json("europe-state-centroids.json", function(states) {
       .domain([0, 7])
       .range(["#2070a0", "orange"])
 
-
-    //nodes = nodes.slice(0, 50)
-
     force
         .nodes(nodes)
         .links(links)
         .start()
         .on("tick", function(e) {
       var k = e.alpha,
-          kg = k * .02,
-          spaceAround = 0.;
+          kg = k * .2,
+          spaceAround = 10.;
 
       nodes.forEach(function(a, i) {
         // Apply gravity forces.
@@ -120,10 +118,9 @@ d3.json("europe-state-centroids.json", function(states) {
             lx = (adx - mdx) / l * k
             ly = (ady - mdy) / l * k
 
-            // choose the direction with less overlap
+    // choose the direction with less overlap
             if (lx > ly  &&  ly > 0) lx = 0;
             else if (ly > lx  &&  lx > 0) ly = 0;
-
 
             dx *= lx
             dy *= ly
@@ -131,6 +128,9 @@ d3.json("europe-state-centroids.json", function(states) {
             a.y -= dy
             b.x += dx
             b.y += dy
+            
+            a.lastx = dx
+            a.lasty = dy
 
             a.overlapCount++;
           }
@@ -152,6 +152,10 @@ d3.json("europe-state-centroids.json", function(states) {
       svg.selectAll("circle.end")
         .attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; })
+        
+      svg.selectAll("text.end")
+        .attr("x", function(d) { return d.x- d.width/2; })
+        .attr("y", function(d) { return d.y- d.height/2; });
 
     });
 
@@ -175,7 +179,7 @@ d3.json("europe-state-centroids.json", function(states) {
       .attr("y1", function(d) { return d.gravity.y; })
 
 
-    g.append("rect")
+   g.append("rect")
       .attr("opacity", 0.75)
       .attr("x", function(d) { return d.x - d.width/2; })
       .attr("y", function(d) { return d.y - d.height/2; })
@@ -187,10 +191,16 @@ d3.json("europe-state-centroids.json", function(states) {
       .attr("stroke", "#000")
       .attr("fill", "#fff")
       .attr("r", 3)
-
+      
+    g.append("text")
+      .attr("class", "end")
+      .text(function(d){return d.name;}) 
 
 
     g.append("circle")
+    
+   
+    
   };
 
   update();
